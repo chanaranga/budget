@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f8f9fa;
+  color: #1a1a2e;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+input, select {
+  outline: none;
+}
+
+.table-cell-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  font-size: 13px;
+}
+
+.table-cell-input:focus {
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.table-cell-select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  font-size: 13px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.table-cell-select:focus {
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
