@@ -7,6 +7,7 @@ interface Props {
   transactions: Transaction[];
   settings: DropdownSettings;
   onChange: (transactions: Transaction[]) => void;
+  typeFilter?: string[];
 }
 
 const MONTHS = [
@@ -104,7 +105,7 @@ function DateInput({ value, onChange }: { value: string; onChange: (v: string) =
   );
 }
 
-function recalcInMonth(all: Transaction[], year: number, month: number): Transaction[] {
+function recalcInMonth(all: Transaction[], year: number, month: number, anchorId?: string): Transaction[] {
   const inMonth = all
     .filter(t => {
       if (!t.date) return false;
@@ -113,8 +114,12 @@ function recalcInMonth(all: Transaction[], year: number, month: number): Transac
     })
     .sort((a, b) => a.date.localeCompare(b.date));
 
+  const anchorIdx = anchorId ? inMonth.findIndex(t => t.id === anchorId) : 0;
+
   const recalced = inMonth.reduce<Transaction[]>((acc, t, i) => {
-    if (i === 0) {
+    if (i < anchorIdx) return [...acc, t]; // leave rows before anchor untouched
+    if (i === anchorIdx) {
+      // Anchor row: keep its startBalance, recalculate endBalance only
       const end = t.startBalance !== null && t.amount !== null
         ? r2(t.startBalance + t.amount)
         : null;
@@ -136,7 +141,7 @@ const DEFAULT_WIDTHS: Record<string, number> = {
   paidTo: 140, comment: 140, bankText: 260, budgeted: 90,
 };
 
-export default function Transactions({ transactions, settings, onChange }: Props) {
+export default function Transactions({ transactions, settings, onChange, typeFilter }: Props) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -189,7 +194,9 @@ export default function Transactions({ transactions, settings, onChange }: Props
     .filter(t => {
       if (!t.date) return false;
       const d = new Date(t.date);
-      return d.getFullYear() === year && d.getMonth() + 1 === month;
+      if (d.getFullYear() !== year || d.getMonth() + 1 !== month) return false;
+      if (typeFilter && !typeFilter.includes(t.type)) return false;
+      return true;
     })
     .sort((a, b) => a.date.localeCompare(b.date));
 
@@ -271,8 +278,11 @@ export default function Transactions({ transactions, settings, onChange }: Props
     let updated = transactions.map(t =>
       t.id !== id ? t : { ...t, [field]: value } as Transaction
     );
-    if (field === 'amount' || field === 'startBalance' || field === 'date') {
+    if (field === 'amount' || field === 'date') {
       updated = recalcInMonth(updated, year, month);
+    } else if (field === 'startBalance') {
+      // Recalc forward from the edited row so the user's value isn't overwritten
+      updated = recalcInMonth(updated, year, month, id);
     }
     onChange(updated);
   }
@@ -286,7 +296,7 @@ export default function Transactions({ transactions, settings, onChange }: Props
       startBalance: lastInMonth?.endBalance ?? null,
       endBalance: null,
       amount: null,
-      type: '',
+      type: typeFilter?.[0] ?? '',
       category: '',
       subCategory: '',
       paidTo: '',
@@ -426,15 +436,19 @@ export default function Transactions({ transactions, settings, onChange }: Props
         >
           + Add Row
         </button>
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700"
-        >
-          Import Bank File
-        </button>
-        <input ref={fileRef} type="file" accept=".xls,.xlsx" className="hidden" onChange={handleImport} />
-        {importStatus && (
-          <span className="text-sm text-gray-500">{importStatus}</span>
+        {!typeFilter && (
+          <>
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700"
+            >
+              Import Bank File
+            </button>
+            <input ref={fileRef} type="file" accept=".xls,.xlsx" className="hidden" onChange={handleImport} />
+            {importStatus && (
+              <span className="text-sm text-gray-500">{importStatus}</span>
+            )}
+          </>
         )}
         {hasActiveFilters && (
           <button
@@ -492,7 +506,7 @@ export default function Transactions({ transactions, settings, onChange }: Props
                   </th>
                 );
               })}
-              <th className="w-8 border-gray-200"></th>
+              <th className="w-8 bg-gray-50 sticky right-0 z-10 border-l border-gray-200"></th>
             </tr>
           </thead>
           <tbody>
@@ -501,7 +515,7 @@ export default function Transactions({ transactions, settings, onChange }: Props
                 <td colSpan={12} className="px-4 py-8 text-center text-gray-400">
                   {hasActiveFilters
                     ? 'No transactions match the active filters.'
-                    : `No transactions for ${MONTHS[month - 1]} ${year}. Add a row or import a bank file.`}
+                    : `No transactions for ${MONTHS[month - 1]} ${year}. Add a row${!typeFilter ? ' or import a bank file' : ''}.`}
                 </td>
               </tr>
             )}
@@ -517,19 +531,13 @@ export default function Transactions({ transactions, settings, onChange }: Props
                   <DateInput value={t.date} onChange={v => updateField(t.id, 'date', v)} />
                 </td>
 
-                {/* Start Balance — editable only on first row */}
+                {/* Start Balance */}
                 <td style={{ width: colWidths.startBalance, minWidth: colWidths.startBalance }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
-                  {rowIdx === 0 ? (
-                    <input
-                      className="table-cell-input text-right"
-                      value={fmt(t.startBalance)}
-                      onChange={e => updateField(t.id, 'startBalance', parseNum(e.target.value))}
-                    />
-                  ) : (
-                    <span className="block text-right px-1 py-0.5 text-gray-500 text-xs bg-gray-50 rounded">
-                      {fmt(t.startBalance)}
-                    </span>
-                  )}
+                  <NumericInput
+                    className="table-cell-input text-right"
+                    value={t.startBalance}
+                    onChange={v => updateField(t.id, 'startBalance', v)}
+                  />
                 </td>
 
                 {/* End Balance — always calculated */}
@@ -615,13 +623,14 @@ export default function Transactions({ transactions, settings, onChange }: Props
                   </select>
                 </td>
 
-                {/* Delete */}
-                <td className="px-1 py-0.5">
+                {/* Delete — sticky right so always visible when scrolling */}
+                <td className={`sticky right-0 px-1 py-0.5 border-l border-gray-200 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                   <button onClick={() => deleteRow(t.id)}
-                    className="text-gray-300 hover:text-red-500 text-xs px-1" title="Delete row">
+                    className="text-red-400 hover:text-red-600 text-base px-1 font-bold transition-colors" title="Delete row">
                     ✕
                   </button>
                 </td>
+
               </tr>
             ))}
           </tbody>

@@ -84,11 +84,15 @@ router.post('/bulk', (req, res) => {
     VALUES (@id, @date, @start_balance, @end_balance, @amount, @type, @category, @sub_category, @paid_to, @comment, @bank_text, @budgeted)
   `);
 
-  const insertMany = db.transaction(txns => {
-    for (const t of txns) insert.run(toRow(t));
-  });
+  db.exec('BEGIN');
+  try {
+    for (const t of transactions) insert.run(toRow(t));
+    db.exec('COMMIT');
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
 
-  insertMany(transactions);
   res.json({ imported: transactions.length });
 });
 

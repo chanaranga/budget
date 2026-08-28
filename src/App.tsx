@@ -19,7 +19,8 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 const EMPTY: AppData = { transactions: [], settings: DEFAULT_SETTINGS };
 
 export default function App() {
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
+  // AUTH BYPASS — change to `getStoredUser()` to re-enable auth
+  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser() ?? { email: '', name: 'Local', picture: '', token: '' });
   const [data, setData] = useState<AppData>(EMPTY);
   const [loading, setLoading] = useState(false);
 
@@ -92,6 +93,15 @@ export default function App() {
                   transactions={data.transactions}
                   settings={data.settings}
                   onChange={handleTransactionsChange}
+                  typeFilter={['One off']}
+                />
+              } />
+              <Route path="/recurring" element={
+                <Transactions
+                  transactions={data.transactions}
+                  settings={data.settings}
+                  onChange={handleTransactionsChange}
+                  typeFilter={['Reccuring', 'Reccuring Plus']}
                 />
               } />
               <Route path="/summary" element={

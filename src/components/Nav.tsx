@@ -14,8 +14,9 @@ export default function Nav({ user, onLogout }: Props) {
 
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-2">
-      <span className="font-bold text-gray-800 mr-4">Finance Tracker</span>
-      <NavLink to="/" end className={linkClass}>Transactions</NavLink>
+      <span className="font-bold text-gray-800 mr-4">Budget Tracker</span>
+      <NavLink to="/" end className={linkClass}>Day-to-Day Costs</NavLink>
+      <NavLink to="/recurring" className={linkClass}>Recurring Costs</NavLink>
       <NavLink to="/summary" className={linkClass}>Summary</NavLink>
       <NavLink to="/analytics" className={linkClass}>Analytics</NavLink>
       <NavLink to="/settings" className={linkClass}>Settings</NavLink>

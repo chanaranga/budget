@@ -1,0 +1,9 @@
+node_modules
+dist
+backend/node_modules
+backend/data
+.env
+.env.*
+*.xlsx
+*.xls
+.git
