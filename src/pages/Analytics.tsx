@@ -60,6 +60,52 @@ function buildFlatRows(
   return dataRows;
 }
 
+function WriteOffTable({ transactions }: { transactions: Transaction[] }) {
+  const amtClass = (v: number) => v < 0 ? 'text-red-600' : 'text-green-700';
+  const total = transactions.reduce((s, t) => s + (t.amount ?? 0), 0);
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold">Write-off</div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {['Date', 'Category', 'Sub Category', 'Paid To', 'Comment'].map(h => (
+                <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+              ))}
+              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.length === 0 && (
+              <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-400">No data</td></tr>
+            )}
+            {transactions.map(t => (
+              <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <td className="px-3 py-1.5 text-sm text-gray-700 whitespace-nowrap">{t.date}</td>
+                <td className="px-3 py-1.5 text-sm text-gray-700">{t.category}</td>
+                <td className="px-3 py-1.5 text-sm text-gray-700">{t.subCategory}</td>
+                <td className="px-3 py-1.5 text-sm text-gray-700">{t.paidTo}</td>
+                <td className="px-3 py-1.5 text-sm text-gray-700">{t.comment}</td>
+                <td className={`px-3 py-1.5 text-right text-sm tabular-nums ${amtClass(t.amount ?? 0)}`}>
+                  €{(t.amount ?? 0).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+            {transactions.length > 0 && (
+              <tr className="border-t-2 border-gray-300 bg-gray-50 font-bold">
+                <td colSpan={5} className="px-3 py-2 text-sm">Total</td>
+                <td className={`px-3 py-2 text-right text-sm ${amtClass(total)}`}>€{total.toFixed(2)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function FlatTable({
   title,
   headers,
@@ -149,11 +195,13 @@ export default function Analytics({ transactions }: Props) {
     return d.getFullYear() === year && d.getMonth() + 1 === month;
   });
 
-  const oneOffBudgeted   = filtered.filter(t => t.type === 'One off' && t.budgeted === 'Yes');
-  const recurringBudgeted = filtered.filter(t => t.type === 'Reccuring' && t.budgeted === 'Yes');
-  const notBudgeted      = filtered.filter(t => t.budgeted === 'No');
-  const moneyIn          = filtered.filter(t => t.category === 'Money In');
-  const writeOff         = filtered.filter(t => t.budgeted === 'WO');
+  const included = filtered.filter(t => !t.excludeFromAnalytics);
+
+  const oneOffBudgeted   = included.filter(t => t.type === 'One off' && t.budgeted === 'Yes');
+  const recurringBudgeted = included.filter(t => t.type === 'Reccuring' && t.budgeted === 'Yes');
+  const notBudgeted      = included.filter(t => t.budgeted === 'No');
+  const moneyIn          = included.filter(t => t.category === 'Money In');
+  const writeOff         = included.filter(t => t.budgeted === 'WO');
 
   return (
     <div className="p-4">
@@ -190,11 +238,7 @@ export default function Analytics({ transactions }: Props) {
           headers={['Category', 'Sub Category', 'Paid To']}
           rows={buildFlatRows(moneyIn, [t => t.category, t => t.subCategory, t => t.paidTo])}
         />
-        <FlatTable
-          title="Write-off"
-          headers={['Category', 'Sub Category', 'Paid To']}
-          rows={buildFlatRows(writeOff, [t => t.category, t => t.subCategory, t => t.paidTo])}
-        />
+        <WriteOffTable transactions={writeOff} />
       </div>
     </div>
   );

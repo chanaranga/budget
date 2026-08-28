@@ -11,6 +11,7 @@ export interface Transaction {
   comment: string;
   bankText: string;
   budgeted: string; // Yes | No | WO
+  excludeFromAnalytics: boolean;
 }
 
 export interface DropdownSettings {

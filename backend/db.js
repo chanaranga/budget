@@ -8,6 +8,9 @@ fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
 
 db.exec(`PRAGMA journal_mode = WAL`);
+
+// Add columns introduced after initial schema
+try { db.exec(`ALTER TABLE transactions ADD COLUMN exclude_from_analytics INTEGER DEFAULT 0`); } catch (_) { /* already exists */ }
 db.exec(`PRAGMA foreign_keys = ON`);
 
 db.exec(`

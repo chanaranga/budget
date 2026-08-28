@@ -138,7 +138,7 @@ function recalcInMonth(all: Transaction[], year: number, month: number, anchorId
 const DEFAULT_WIDTHS: Record<string, number> = {
   date: 120, startBalance: 90, endBalance: 90, amount: 90,
   type: 125, category: 140, subCategory: 140,
-  paidTo: 140, comment: 140, bankText: 260, budgeted: 90,
+  paidTo: 140, comment: 140, bankText: 260, budgeted: 90, excludeFromAnalytics: 60,
 };
 
 export default function Transactions({ transactions, settings, onChange, typeFilter }: Props) {
@@ -274,7 +274,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
     setColumnFilters({});
   }
 
-  function updateField(id: string, field: keyof Transaction, value: string | number | null) {
+  function updateField(id: string, field: keyof Transaction, value: string | number | boolean | null) {
     let updated = transactions.map(t =>
       t.id !== id ? t : { ...t, [field]: value } as Transaction
     );
@@ -303,6 +303,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
       comment: '',
       bankText: '',
       budgeted: '',
+      excludeFromAnalytics: false,
     };
     focusRowId.current = newRow.id;
     const updated = recalcInMonth([...transactions, newRow], year, month);
@@ -334,13 +335,14 @@ export default function Transactions({ transactions, settings, onChange, typeFil
           startBalance: (row['startsaldo'] as number) ?? null,
           endBalance: null,
           amount: (row['amount'] as number) ?? null,
-          type: 'One off',
+          type: typeFilter?.[0] ?? 'One off',
           category: '',
           subCategory: '',
           paidTo: '',
           comment: '',
           bankText: String(row['description'] ?? ''),
           budgeted: 'Yes',
+          excludeFromAnalytics: false,
         };
       });
 
@@ -398,8 +400,9 @@ export default function Transactions({ transactions, settings, onChange, typeFil
     ['subCategory',  'Sub Category'],
     ['paidTo',       'Paid To'],
     ['comment',      'Comment'],
-    ['bankText',     'Bank Text'],
-    ['budgeted',     'Budgeted'],
+    ['budgeted',              'Budgeted'],
+    ['excludeFromAnalytics',  'Excl.'],
+    ['bankText',              'Bank Text'],
   ];
 
   // Active filter panel data
@@ -413,9 +416,9 @@ export default function Transactions({ transactions, settings, onChange, typeFil
     : activeAllVals;
 
   return (
-    <div className="p-4">
-      {/* Filters & Actions */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
+    <div className="flex flex-col h-full">
+      {/* Filters & Actions — pinned, does not scroll */}
+      <div className="flex items-center gap-3 flex-wrap flex-shrink-0 px-4 pt-4 pb-3 bg-white border-b border-gray-200">
         <select
           value={year}
           onChange={e => setYear(Number(e.target.value))}
@@ -436,19 +439,15 @@ export default function Transactions({ transactions, settings, onChange, typeFil
         >
           + Add Row
         </button>
-        {!typeFilter && (
-          <>
-            <button
-              onClick={() => fileRef.current?.click()}
-              className="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700"
-            >
-              Import Bank File
-            </button>
-            <input ref={fileRef} type="file" accept=".xls,.xlsx" className="hidden" onChange={handleImport} />
-            {importStatus && (
-              <span className="text-sm text-gray-500">{importStatus}</span>
-            )}
-          </>
+        <button
+          onClick={() => fileRef.current?.click()}
+          className="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700"
+        >
+          {typeFilter ? 'Upload bank file' : 'Import Bank File'}
+        </button>
+        <input ref={fileRef} type="file" accept=".xls,.xlsx" className="hidden" onChange={handleImport} />
+        {importStatus && (
+          <span className="text-sm text-gray-500">{importStatus}</span>
         )}
         {hasActiveFilters && (
           <button
@@ -469,8 +468,8 @@ export default function Transactions({ transactions, settings, onChange, typeFil
         </span>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      {/* Table — scrollable area */}
+      <div className="flex-1 overflow-auto mx-4 my-3 rounded-lg border border-gray-200 bg-white">
         <table className="text-sm border-collapse min-w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 select-none">
@@ -481,7 +480,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                   <th
                     key={key}
                     style={{ width: colWidths[key], minWidth: colWidths[key] }}
-                    className="relative px-2 py-2 text-left text-xs font-semibold text-gray-600 border-r border-gray-200 overflow-hidden"
+                    className="relative px-2 py-2 text-left text-xs font-semibold text-gray-600 border-r border-gray-200 overflow-hidden sticky top-0 bg-gray-50 z-10"
                   >
                     <div className="flex items-center gap-0.5 pr-2">
                       <span className="truncate flex-1">{label}</span>
@@ -506,7 +505,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                   </th>
                 );
               })}
-              <th className="w-8 bg-gray-50 sticky right-0 z-10 border-l border-gray-200"></th>
+              <th className="w-8 bg-gray-50 sticky top-0 right-0 z-20 border-l border-gray-200"></th>
             </tr>
           </thead>
           <tbody>
@@ -515,7 +514,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 <td colSpan={12} className="px-4 py-8 text-center text-gray-400">
                   {hasActiveFilters
                     ? 'No transactions match the active filters.'
-                    : `No transactions for ${MONTHS[month - 1]} ${year}. Add a row${!typeFilter ? ' or import a bank file' : ''}.`}
+                    : `No transactions for ${MONTHS[month - 1]} ${year}. Add a row or upload a bank file.`}
                 </td>
               </tr>
             )}
@@ -607,13 +606,6 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                     onChange={e => updateField(t.id, 'comment', e.target.value)} />
                 </td>
 
-                {/* Bank Text */}
-                <td style={{ width: colWidths.bankText, minWidth: colWidths.bankText }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
-                  <input className="table-cell-input" value={t.bankText}
-                    title={t.bankText}
-                    onChange={e => updateField(t.id, 'bankText', e.target.value)} />
-                </td>
-
                 {/* Budgeted */}
                 <td style={{ width: colWidths.budgeted, minWidth: colWidths.budgeted }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
                   <select className="table-cell-select" value={t.budgeted}
@@ -621,6 +613,23 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                     <option value=""></option>
                     {getOptions('select-budgeted').map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
+                </td>
+
+                {/* Excl. from Analytics */}
+                <td style={{ width: colWidths.excludeFromAnalytics, minWidth: colWidths.excludeFromAnalytics }} className="px-1 py-0.5 border-r border-gray-100 text-center">
+                  <input
+                    type="checkbox"
+                    checked={t.excludeFromAnalytics}
+                    onChange={e => updateField(t.id, 'excludeFromAnalytics', e.target.checked)}
+                    className="cursor-pointer w-4 h-4 accent-blue-600"
+                  />
+                </td>
+
+                {/* Bank Text */}
+                <td style={{ width: colWidths.bankText, minWidth: colWidths.bankText }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
+                  <input className="table-cell-input" value={t.bankText}
+                    title={t.bankText}
+                    onChange={e => updateField(t.id, 'bankText', e.target.value)} />
                 </td>
 
                 {/* Delete — sticky right so always visible when scrolling */}

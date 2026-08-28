@@ -85,8 +85,9 @@ export default function App() {
         </div>
       ) : (
         <BrowserRouter>
-          <div className="min-h-screen bg-gray-50">
+          <div className="h-screen flex flex-col bg-gray-50">
             <Nav user={user} onLogout={handleLogout} />
+            <div className="flex-1 overflow-hidden">
             <Routes>
               <Route path="/" element={
                 <Transactions
@@ -117,6 +118,7 @@ export default function App() {
                 />
               } />
             </Routes>
+            </div>
           </div>
         </BrowserRouter>
       )}
