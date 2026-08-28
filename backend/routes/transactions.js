@@ -20,6 +20,7 @@ function toRow(t) {
     bank_text: t.bankText ?? '',
     budgeted: t.budgeted ?? '',
     exclude_from_analytics: t.excludeFromAnalytics ? 1 : 0,
+    bunq_id: t.bunqId ?? null,
   };
 }
 
@@ -38,6 +39,7 @@ function fromRow(row) {
     bankText: row.bank_text,
     budgeted: row.budgeted,
     excludeFromAnalytics: Boolean(row.exclude_from_analytics),
+    bunqId: row.bunq_id ?? null,
   };
 }
 
@@ -51,8 +53,8 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const row = toRow(req.body);
   db.prepare(`
-    INSERT INTO transactions (id, date, start_balance, end_balance, amount, type, category, sub_category, paid_to, comment, bank_text, budgeted, exclude_from_analytics)
-    VALUES (@id, @date, @start_balance, @end_balance, @amount, @type, @category, @sub_category, @paid_to, @comment, @bank_text, @budgeted, @exclude_from_analytics)
+    INSERT INTO transactions (id, date, start_balance, end_balance, amount, type, category, sub_category, paid_to, comment, bank_text, budgeted, exclude_from_analytics, bunq_id)
+    VALUES (@id, @date, @start_balance, @end_balance, @amount, @type, @category, @sub_category, @paid_to, @comment, @bank_text, @budgeted, @exclude_from_analytics, @bunq_id)
   `).run(row);
   res.status(201).json(req.body);
 });
@@ -65,7 +67,7 @@ router.put('/:id', (req, res) => {
       date = @date, start_balance = @start_balance, end_balance = @end_balance,
       amount = @amount, type = @type, category = @category, sub_category = @sub_category,
       paid_to = @paid_to, comment = @comment, bank_text = @bank_text, budgeted = @budgeted,
-      exclude_from_analytics = @exclude_from_analytics
+      exclude_from_analytics = @exclude_from_analytics, bunq_id = @bunq_id
     WHERE id = @id
   `).run(row);
   res.json(req.body);
@@ -83,8 +85,8 @@ router.post('/bulk', (req, res) => {
   if (!Array.isArray(transactions)) return res.status(400).json({ error: 'Expected array' });
 
   const insert = db.prepare(`
-    INSERT OR REPLACE INTO transactions (id, date, start_balance, end_balance, amount, type, category, sub_category, paid_to, comment, bank_text, budgeted, exclude_from_analytics)
-    VALUES (@id, @date, @start_balance, @end_balance, @amount, @type, @category, @sub_category, @paid_to, @comment, @bank_text, @budgeted, @exclude_from_analytics)
+    INSERT OR REPLACE INTO transactions (id, date, start_balance, end_balance, amount, type, category, sub_category, paid_to, comment, bank_text, budgeted, exclude_from_analytics, bunq_id)
+    VALUES (@id, @date, @start_balance, @end_balance, @amount, @type, @category, @sub_category, @paid_to, @comment, @bank_text, @budgeted, @exclude_from_analytics, @bunq_id)
   `);
 
   db.exec('BEGIN');

@@ -526,8 +526,11 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 }`}
               >
                 {/* Date */}
-                <td style={{ width: colWidths.date, minWidth: colWidths.date }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
+                <td style={{ width: colWidths.date, minWidth: colWidths.date }} className="relative px-1 py-0.5 border-r border-gray-100 overflow-hidden">
                   <DateInput value={t.date} onChange={v => updateField(t.id, 'date', v)} />
+                  {t.bunqId && (
+                    <span className="absolute top-0.5 right-0.5 text-[9px] font-bold text-blue-400 dark:text-blue-500 leading-none pointer-events-none" title="Synced from Bunq">B</span>
+                  )}
                 </td>
 
                 {/* Start Balance */}

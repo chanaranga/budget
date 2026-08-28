@@ -51,6 +51,15 @@ export const api = {
 
   saveSummary: (yearMonth: string, data: SummaryData) =>
     request<SummaryData>(`/api/summary/${yearMonth}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  bunqStatus: () =>
+    request<{ connected: boolean; lastSync: string | null; accountId: string | null }>('/api/bunq/status'),
+
+  bunqSetup: () =>
+    request<{ ok: boolean; userId: number; accountId: string }>('/api/bunq/setup', { method: 'POST' }),
+
+  bunqSync: () =>
+    request<{ imported: number; updated: number }>('/api/bunq/sync', { method: 'POST' }),
 };
 
 export interface MoneyInRow {

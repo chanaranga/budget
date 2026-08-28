@@ -12,6 +12,7 @@ export interface Transaction {
   bankText: string;
   budgeted: string; // Yes | No | WO
   excludeFromAnalytics: boolean;
+  bunqId?: string | null;
 }
 
 export interface DropdownSettings {
