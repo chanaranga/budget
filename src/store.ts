@@ -23,7 +23,7 @@ export function recalcAllMonths(transactions: Transaction[]): Transaction[] {
   const groups = new Map<string, Transaction[]>();
   for (const t of transactions) {
     if (!t.date) continue;
-    const key = t.date.slice(0, 7);
+    const key = t.type + '|' + t.date.slice(0, 7);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(t);
   }

@@ -105,10 +105,11 @@ function DateInput({ value, onChange }: { value: string; onChange: (v: string) =
   );
 }
 
-function recalcInMonth(all: Transaction[], year: number, month: number, anchorId?: string): Transaction[] {
+function recalcInMonth(all: Transaction[], year: number, month: number, anchorId?: string, types?: string[]): Transaction[] {
   const inMonth = all
     .filter(t => {
       if (!t.date) return false;
+      if (types && !types.includes(t.type)) return false;
       const d = new Date(t.date);
       return d.getFullYear() === year && d.getMonth() + 1 === month;
     })
@@ -279,10 +280,10 @@ export default function Transactions({ transactions, settings, onChange, typeFil
       t.id !== id ? t : { ...t, [field]: value } as Transaction
     );
     if (field === 'amount' || field === 'date') {
-      updated = recalcInMonth(updated, year, month);
+      updated = recalcInMonth(updated, year, month, undefined, typeFilter);
     } else if (field === 'startBalance') {
       // Recalc forward from the edited row so the user's value isn't overwritten
-      updated = recalcInMonth(updated, year, month, id);
+      updated = recalcInMonth(updated, year, month, id, typeFilter);
     }
     onChange(updated);
   }
@@ -306,79 +307,138 @@ export default function Transactions({ transactions, settings, onChange, typeFil
       excludeFromAnalytics: false,
     };
     focusRowId.current = newRow.id;
-    const updated = recalcInMonth([...transactions, newRow], year, month);
+    const updated = recalcInMonth([...transactions, newRow], year, month, undefined, typeFilter);
     onChange(updated);
   }
 
   function deleteRow(id: string) {
-    const updated = recalcInMonth(transactions.filter(t => t.id !== id), year, month);
+    const updated = recalcInMonth(transactions.filter(t => t.id !== id), year, month, undefined, typeFilter);
     onChange(updated);
   }
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const data = ev.target?.result;
-      const wb = XLSX.read(data, { type: 'binary' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { raw: true });
+
+    function parseDutchAmount(val: unknown): number | null {
+      if (typeof val === 'number') return val;
+      const str = String(val ?? '').trim();
+      if (!str) return null;
+      const n = parseFloat(str.replace(/\./g, '').replace(',', '.'));
+      return isNaN(n) ? null : n;
+    }
+
+    function parseCSV(text: string): Record<string, string>[] {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];
+      function parseLine(line: string): string[] {
+        const fields: string[] = [];
+        let cur = '';
+        let inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+            else inQ = !inQ;
+          } else if (ch === ',' && !inQ) {
+            fields.push(cur); cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        fields.push(cur);
+        return fields;
+      }
+      const headers = parseLine(lines[0]);
+      return lines.slice(1).filter(l => l.trim()).map(line => {
+        const vals = parseLine(line);
+        const obj: Record<string, string> = {};
+        headers.forEach((h, i) => { obj[h.trim()] = (vals[i] ?? '').trim(); });
+        return obj;
+      });
+    }
+
+    function processRows(rows: Record<string, unknown>[]) {
+      if (rows.length === 0) { setImportStatus('No rows found in file.'); return; }
+      const cols = Object.keys(rows[0]);
+      const isBunq = cols.includes('Date') && cols.includes('Amount') && cols.includes('Name') && cols.includes('Description');
+      const isExisting = cols.includes('transactiondate') && cols.includes('amount') && cols.includes('description');
+      if (!isBunq && !isExisting) {
+        setImportStatus(`Unrecognised file format. Columns found: ${cols.join(', ')}`);
+        return;
+      }
 
       const imported: Transaction[] = rows.map(row => {
-        const rawDate = row['transactiondate'] as number;
-        const ds = String(rawDate);
-        const dateStr = `${ds.slice(0, 4)}-${ds.slice(4, 6)}-${ds.slice(6, 8)}`;
-        return {
-          id: generateId(),
-          date: dateStr,
-          startBalance: (row['startsaldo'] as number) ?? null,
-          endBalance: null,
-          amount: (row['amount'] as number) ?? null,
-          type: typeFilter?.[0] ?? 'One off',
-          category: '',
-          subCategory: '',
-          paidTo: '',
-          comment: '',
-          bankText: String(row['description'] ?? ''),
-          budgeted: 'Yes',
-          excludeFromAnalytics: false,
-        };
+        if (isBunq) {
+          return {
+            id: generateId(),
+            date: String(row['Date'] ?? '').slice(0, 10),
+            startBalance: null,
+            endBalance: null,
+            amount: parseDutchAmount(row['Amount']),
+            type: typeFilter?.[0] ?? 'One off',
+            category: '',
+            subCategory: '',
+            paidTo: String(row['Name'] ?? ''),
+            comment: '',
+            bankText: String(row['Description'] ?? ''),
+            budgeted: '',
+            excludeFromAnalytics: false,
+          };
+        } else {
+          const ds = String(row['transactiondate'] ?? '');
+          const dateStr = `${ds.slice(0, 4)}-${ds.slice(4, 6)}-${ds.slice(6, 8)}`;
+          return {
+            id: generateId(),
+            date: dateStr,
+            startBalance: parseDutchAmount(row['startsaldo']),
+            endBalance: null,
+            amount: parseDutchAmount(row['amount']),
+            type: typeFilter?.[0] ?? 'One off',
+            category: '',
+            subCategory: '',
+            paidTo: '',
+            comment: '',
+            bankText: String(row['description'] ?? ''),
+            budgeted: 'Yes',
+            excludeFromAnalytics: false,
+          };
+        }
       });
 
-      if (rows.length === 0) {
-        setImportStatus('No rows found in file.');
-        return;
-      }
-
-      const firstRow = rows[0];
-      const cols = Object.keys(firstRow);
-      if (!cols.includes('transactiondate') || !cols.includes('amount') || !cols.includes('description')) {
-        setImportStatus(`Unexpected columns: ${cols.join(', ')}`);
-        return;
-      }
-
-      // Match by date+amount+bankText — only add rows not already present
       const existingKeys = new Set(
-        transactions
-          .filter(t => t.bankText)
-          .map(t => `${t.date}|${t.amount}|${t.bankText}`)
+        transactions.filter(t => t.bankText).map(t => `${t.date}|${t.amount}|${t.bankText}`)
       );
-
-      const newRows = imported.filter(
-        t => !existingKeys.has(`${t.date}|${t.amount}|${t.bankText}`)
-      );
-
-      if (newRows.length === 0) {
-        setImportStatus('All rows already imported.');
-        return;
-      }
+      const newRows = imported.filter(t => !existingKeys.has(`${t.date}|${t.amount}|${t.bankText}`));
+      if (newRows.length === 0) { setImportStatus('All rows already imported.'); return; }
 
       const merged = recalcAllMonths([...transactions, ...newRows]);
       onChange(merged);
-      setImportStatus(`Imported ${newRows.length} new row${newRows.length === 1 ? '' : 's'}.`);
-    };
-    reader.readAsBinaryString(file);
+      const fmt = isBunq ? 'Bunq CSV' : 'bank export';
+      setImportStatus(`Imported ${newRows.length} new row${newRows.length === 1 ? '' : 's'} from ${fmt}.`);
+    }
+
+    const reader = new FileReader();
+    const isCsvFile = file.name.toLowerCase().endsWith('.csv');
+
+    if (isCsvFile) {
+      reader.onload = (ev) => {
+        const text = ev.target?.result as string;
+        const rows = parseCSV(text) as Record<string, unknown>[];
+        processRows(rows);
+      };
+      reader.readAsText(file, 'utf-8');
+    } else {
+      reader.onload = (ev) => {
+        const data = ev.target?.result;
+        const wb = XLSX.read(data, { type: 'binary' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { raw: true });
+        processRows(rows);
+      };
+      reader.readAsBinaryString(file);
+    }
+
     e.target.value = '';
   }
 
@@ -445,7 +505,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
         >
           {typeFilter ? 'Upload bank file' : 'Import Bank File'}
         </button>
-        <input ref={fileRef} type="file" accept=".xls,.xlsx" className="hidden" onChange={handleImport} />
+        <input ref={fileRef} type="file" accept=".xls,.xlsx,.csv" className="hidden" onChange={handleImport} />
         {importStatus && (
           <span className="text-sm text-gray-500 dark:text-slate-400">{importStatus}</span>
         )}
