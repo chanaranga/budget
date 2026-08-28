@@ -33,7 +33,7 @@ function r2(n: number) { return Math.round(n * 100) / 100; }
 function fmt(n: number) { return n.toFixed(2); }
 
 function BalanceCell({ value }: { value: number }) {
-  const color = value >= 0 ? 'text-green-700' : 'text-red-600';
+  const color = value >= 0 ? 'text-green-700 amount-positive' : 'text-red-600 amount-negative';
   return <td className={`px-3 py-1.5 text-right text-sm tabular-nums ${color}`}>{fmt(value)}</td>;
 }
 
@@ -80,7 +80,7 @@ function EditCell({ value, onChange }: EditCellProps) {
       onClick={start}
       title="Click to edit"
     >
-      {value !== 0 ? <span className={value < 0 ? 'text-red-600' : ''}>{fmt(value)}</span> : <span className="text-gray-300 dark:text-slate-600">0.00</span>}
+      {value !== 0 ? <span className={value < 0 ? 'text-red-600 amount-negative' : ''}>{fmt(value)}</span> : <span className="text-gray-300 dark:text-slate-600">0.00</span>}
     </td>
   );
 }
@@ -401,7 +401,7 @@ function SummaryRow({ label, children }: { label: string; children: React.ReactN
 
 function CalcRow({ label, value, bold, colored }: { label: string; value: number; bold?: boolean; colored?: boolean }) {
   const textClass = colored
-    ? value >= 0 ? 'text-green-700' : 'text-red-600'
+    ? value >= 0 ? 'text-green-700 amount-positive' : 'text-red-600 amount-negative'
     : 'text-gray-700 dark:text-slate-200';
   return (
     <tr className="border-b border-gray-100 dark:border-slate-700">

@@ -61,12 +61,12 @@ function buildFlatRows(
 }
 
 function WriteOffTable({ transactions }: { transactions: Transaction[] }) {
-  const amtClass = (v: number) => v < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400';
+  const amtClass = (v: number) => v < 0 ? 'text-red-600 amount-negative' : 'text-green-700 amount-positive';
   const total = transactions.reduce((s, t) => s + (t.amount ?? 0), 0);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
-      <div className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold">Write-off</div>
+      <div className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 text-sm font-semibold">Write-off</div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
@@ -113,11 +113,11 @@ function FlatTable({
   headers: string[];
   rows: FlatRow[];
 }) {
-  const amtClass = (v: number) => v < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400';
+  const amtClass = (v: number) => v < 0 ? 'text-red-600 amount-negative' : 'text-green-700 amount-positive';
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
-      <div className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold">{title}</div>
+      <div className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 text-sm font-semibold">{title}</div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">

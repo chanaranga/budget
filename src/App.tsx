@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Nav from './components/Nav';
 import Transactions from './pages/Transactions';
@@ -18,10 +18,42 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
 const EMPTY: AppData = { transactions: [], settings: DEFAULT_SETTINGS };
 
+export type Theme = 'system' | 'light' | 'dark';
+
+function initTheme(): Theme {
+  const stored = (localStorage.getItem('theme') as Theme) ?? 'system';
+  applyThemeClass(stored);
+  return stored;
+}
+
+function applyThemeClass(theme: Theme) {
+  const html = document.documentElement;
+  if (theme === 'dark') {
+    html.classList.add('dark');
+  } else if (theme === 'light') {
+    html.classList.remove('dark');
+  } else {
+    html.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+}
+
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
   const [data, setData] = useState<AppData>(EMPTY);
   const [loading, setLoading] = useState(false);
+  const [theme, setTheme] = useState<Theme>(initTheme);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    applyThemeClass(theme);
+
+    if (theme !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) =>
+      document.documentElement.classList.toggle('dark', e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [theme]);
 
   // Load data from API whenever user logs in
   useEffect(() => {
@@ -46,7 +78,6 @@ export default function App() {
     setData(EMPTY);
   }
 
-  // Diff old vs new transactions and sync only what changed
   const handleTransactionsChange = useCallback(async (next: ReturnType<typeof recalcAllMonths>) => {
     const prev = data.transactions;
     const prevMap = new Map(prev.map(t => [t.id, t]));
@@ -59,7 +90,6 @@ export default function App() {
       return old && JSON.stringify(old) !== JSON.stringify(t);
     });
 
-    // Optimistic update
     setData(d => ({ ...d, transactions: next }));
 
     await Promise.all([
@@ -85,10 +115,11 @@ export default function App() {
       ) : (
         <BrowserRouter>
           <div className="h-screen flex flex-col bg-gray-50 dark:bg-slate-900">
-            <Nav user={user} onLogout={handleLogout} />
+            <Nav user={user} onLogout={handleLogout} theme={theme} onThemeChange={setTheme} />
             <div className="flex-1 overflow-y-auto">
             <Routes>
-              <Route path="/" element={
+              <Route path="/" element={<Navigate to="/summary" replace />} />
+              <Route path="/day-to-day" element={
                 <Transactions
                   transactions={data.transactions}
                   settings={data.settings}

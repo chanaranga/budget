@@ -435,13 +435,13 @@ export default function Transactions({ transactions, settings, onChange, typeFil
         </select>
         <button
           onClick={addRow}
-          className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700"
+          className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded text-sm hover:bg-slate-300 dark:hover:bg-slate-500"
         >
           + Add Row
         </button>
         <button
           onClick={() => fileRef.current?.click()}
-          className="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700"
+          className="bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded text-sm hover:bg-slate-300 dark:hover:bg-slate-500"
         >
           {typeFilter ? 'Upload bank file' : 'Import Bank File'}
         </button>
@@ -542,7 +542,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 {/* End Balance — always calculated */}
                 <td style={{ width: colWidths.endBalance, minWidth: colWidths.endBalance }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
                   <span className={`block text-right px-1 py-0.5 text-xs bg-gray-50 dark:bg-slate-900 rounded ${
-                    t.endBalance !== null && t.endBalance < 0 ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-slate-400'
+                    t.endBalance !== null && t.endBalance < 0 ? 'text-red-500 amount-negative' : 'text-gray-500 dark:text-slate-400'
                   }`}>
                     {fmt(t.endBalance)}
                   </span>
@@ -552,8 +552,8 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 <td style={{ width: colWidths.amount, minWidth: colWidths.amount }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
                   <NumericInput
                     className={`table-cell-input text-right ${
-                      t.amount !== null && t.amount < 0 ? 'text-red-600 dark:text-red-400' :
-                      t.amount !== null && t.amount > 0 ? 'text-green-700 dark:text-green-400' : ''
+                      t.amount !== null && t.amount < 0 ? 'text-red-600 amount-negative' :
+                      t.amount !== null && t.amount > 0 ? 'text-green-700 amount-positive' : ''
                     }`}
                     value={t.amount}
                     onChange={v => updateField(t.id, 'amount', v)}
@@ -706,7 +706,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
             </button>
             <button
               onClick={() => setOpenFilter(null)}
-              className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded hover:bg-blue-700"
+              className="text-xs bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded hover:bg-slate-300 dark:hover:bg-slate-500"
             >
               OK
             </button>
