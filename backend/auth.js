@@ -4,8 +4,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const ALLOWED_EMAILS = ['chanaranga@gmail.com', 'umeaha.alwis@gmail.com'];
 
 async function requireAuth(req, res, next) {
-  // AUTH BYPASS — remove this block to re-enable auth
-  return next();
   const auth = req.headers.authorization;
   if (!auth?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing token' });

@@ -19,8 +19,7 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 const EMPTY: AppData = { transactions: [], settings: DEFAULT_SETTINGS };
 
 export default function App() {
-  // AUTH BYPASS — change to `getStoredUser()` to re-enable auth
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser() ?? { email: '', name: 'Local', picture: '', token: '' });
+  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
   const [data, setData] = useState<AppData>(EMPTY);
   const [loading, setLoading] = useState(false);
 
