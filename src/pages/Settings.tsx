@@ -35,12 +35,12 @@ function ListEditor({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
       <div className="bg-blue-600 text-white px-4 py-2.5 text-sm font-semibold">{title}</div>
       <div className="p-4">
         <div className="flex gap-2 mb-3">
           <input
-            className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder={`Add ${title.toLowerCase()}...`}
             value={newValue}
             onChange={e => setNewValue(e.target.value)}
@@ -55,11 +55,11 @@ function ListEditor({
         </div>
         <div className="space-y-1 max-h-80 overflow-y-auto">
           {items.map(item => (
-            <div key={item} className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-50 group">
-              <span className="text-sm text-gray-700">{item}</span>
+            <div key={item} className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-50 dark:hover:bg-slate-700 group">
+              <span className="text-sm text-gray-700 dark:text-slate-200">{item}</span>
               <button
                 onClick={() => remove(item)}
-                className="text-gray-300 group-hover:text-red-500 text-xs px-1 transition-colors"
+                className="text-gray-300 dark:text-slate-600 group-hover:text-red-500 text-xs px-1 transition-colors"
                 title="Remove"
               >
                 ✕
@@ -67,7 +67,7 @@ function ListEditor({
             </div>
           ))}
           {items.length === 0 && (
-            <p className="text-sm text-gray-400 py-2 text-center">No items</p>
+            <p className="text-sm text-gray-400 dark:text-slate-500 py-2 text-center">No items</p>
           )}
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function Settings({ settings, onChange }: Props) {
 
   return (
     <div className="p-4">
-      <h1 className="text-lg font-bold text-gray-800 mb-4">Settings — Dropdown Values</h1>
+      <h1 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4">Settings — Dropdown Values</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <ListEditor
           title="Types"

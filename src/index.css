@@ -1,10 +1,22 @@
 @import "tailwindcss";
 
+@variant dark (@media (prefers-color-scheme: dark));
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
   background: #f8f9fa;
   color: #1a1a2e;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0f172a;
+    color: #f1f5f9;
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 #root {
@@ -27,6 +39,15 @@ input, select {
   background: #fff;
   border-radius: 2px;
   box-shadow: 0 0 0 2px #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .table-cell-input:focus {
+    background: #1e293b;
+  }
+  .table-cell-select:focus {
+    background: #1e293b;
+  }
 }
 
 .table-cell-select {

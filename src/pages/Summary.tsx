@@ -38,7 +38,7 @@ function BalanceCell({ value }: { value: number }) {
 }
 
 function SpendCell({ value }: { value: number }) {
-  return <td className="px-3 py-1.5 text-right text-sm tabular-nums text-gray-700">{value > 0 ? fmt(value) : '—'}</td>;
+  return <td className="px-3 py-1.5 text-right text-sm tabular-nums text-gray-700 dark:text-slate-200">{value > 0 ? fmt(value) : '—'}</td>;
 }
 
 interface EditCellProps {
@@ -66,7 +66,7 @@ function EditCell({ value, onChange }: EditCellProps) {
     <td className="px-1 py-0.5">
       <input
         ref={ref}
-        className="w-full text-right text-sm px-2 py-1 border border-blue-400 rounded focus:outline-none bg-white"
+        className="w-full text-right text-sm px-2 py-1 border border-blue-400 rounded focus:outline-none bg-white dark:bg-slate-700 dark:text-slate-100"
         value={raw}
         onChange={e => setRaw(e.target.value)}
         onBlur={commit}
@@ -76,11 +76,11 @@ function EditCell({ value, onChange }: EditCellProps) {
     </td>
   ) : (
     <td
-      className="px-3 py-1.5 text-right text-sm tabular-nums cursor-pointer hover:bg-blue-50 rounded"
+      className="px-3 py-1.5 text-right text-sm tabular-nums cursor-pointer hover:bg-blue-50 dark:hover:bg-slate-700 rounded"
       onClick={start}
       title="Click to edit"
     >
-      {value !== 0 ? <span className={value < 0 ? 'text-red-600' : ''}>{fmt(value)}</span> : <span className="text-gray-300">0.00</span>}
+      {value !== 0 ? <span className={value < 0 ? 'text-red-600' : ''}>{fmt(value)}</span> : <span className="text-gray-300 dark:text-slate-600">0.00</span>}
     </td>
   );
 }
@@ -208,38 +208,38 @@ export default function Summary({ transactions }: Props) {
   const totalSpentMonth = r2(totalSpend);
   const savings = r2(totalAvailable - totalSpentMonth);
 
-  const headerClass = 'px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider';
+  const headerClass = 'px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider';
 
   return (
     <div className="p-4 max-w-3xl">
       {/* Filters */}
       <div className="flex items-center gap-3 mb-5">
         <select value={year} onChange={e => setYear(Number(e.target.value))}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white">
+          className="border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100">
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select value={month} onChange={e => setMonth(Number(e.target.value))}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white">
+          className="border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100">
           {MONTHS.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
         </select>
-        {saving && <span className="text-xs text-gray-400 ml-2">Saving…</span>}
+        {saving && <span className="text-xs text-gray-400 dark:text-slate-500 ml-2">Saving…</span>}
         <button
           onClick={copyFromPrevMonth}
           disabled={copying || saving}
-          className="ml-auto px-3 py-1.5 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="ml-auto px-3 py-1.5 text-sm border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
           title="Copy budget figures from the previous month"
         >
           {copying ? 'Copying…' : '← Copy from previous month'}
         </button>
       </div>
 
-      <h1 className="text-lg font-bold text-gray-800 mb-4">Monthly Cost Summary — {MONTHS[month - 1]} {year}</h1>
+      <h1 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4">Monthly Cost Summary — {MONTHS[month - 1]} {year}</h1>
 
       {/* ── RECURRING COSTS ─────────────────────────────────────── */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden mb-4">
         <div className="bg-slate-700 text-white px-4 py-2 text-sm font-semibold">Recurring Costs</div>
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
             <tr>
               <th className={headerClass}>Category</th>
               <th className={headerClass}>Sub Category</th>
@@ -254,9 +254,9 @@ export default function Summary({ transactions }: Props) {
               const budget = data.recurringBudgets[key] ?? 0;
               const spend  = recurringSpend[key] ?? 0;
               return (
-                <tr key={key} className={`border-b border-gray-100 ${i % 2 === 0 ? '' : 'bg-gray-50/50'}`}>
-                  <td className="px-3 py-1.5 text-sm text-gray-700">{cat}</td>
-                  <td className="px-3 py-1.5 text-sm text-gray-500">{sub}</td>
+                <tr key={key} className={`border-b border-gray-100 dark:border-slate-700 ${i % 2 === 0 ? '' : 'bg-gray-50/50 dark:bg-slate-800/50'}`}>
+                  <td className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200">{cat}</td>
+                  <td className="px-3 py-1.5 text-sm text-gray-500 dark:text-slate-400">{sub}</td>
                   <EditCell value={budget} onChange={v => update({ ...data, recurringBudgets: { ...data.recurringBudgets, [key]: v } })} />
                   <SpendCell value={spend} />
                   <BalanceCell value={r2(budget - spend)} />
@@ -264,14 +264,14 @@ export default function Summary({ transactions }: Props) {
               );
             })}
             {recurringRows.length === 0 && (
-              <tr><td colSpan={5} className="px-3 py-4 text-center text-sm text-gray-400">No recurring budgeted transactions yet</td></tr>
+              <tr><td colSpan={5} className="px-3 py-4 text-center text-sm text-gray-400 dark:text-slate-500">No recurring budgeted transactions yet</td></tr>
             )}
           </tbody>
-          <tfoot className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
+          <tfoot className="border-t-2 border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 font-semibold">
             <tr>
-              <td colSpan={2} className="px-3 py-2 text-sm">Total Recurring Costs</td>
-              <td className="px-3 py-2 text-right text-sm tabular-nums">{fmt(totalRecurringBudget)}</td>
-              <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-700">{fmt(totalRecurringSpend)}</td>
+              <td colSpan={2} className="px-3 py-2 text-sm dark:text-slate-100">Total Recurring Costs</td>
+              <td className="px-3 py-2 text-right text-sm tabular-nums dark:text-slate-100">{fmt(totalRecurringBudget)}</td>
+              <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-700 dark:text-slate-200">{fmt(totalRecurringSpend)}</td>
               <BalanceCell value={r2(totalRecurringBudget - totalRecurringSpend)} />
             </tr>
           </tfoot>
@@ -279,10 +279,10 @@ export default function Summary({ transactions }: Props) {
       </div>
 
       {/* ── ONE-OFF COSTS ────────────────────────────────────────── */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden mb-4">
         <div className="bg-slate-700 text-white px-4 py-2 text-sm font-semibold">One-off Costs</div>
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
             <tr>
               <th className={headerClass}>Category</th>
               <th className={`${headerClass} text-right`}>Budget</th>
@@ -295,8 +295,8 @@ export default function Summary({ transactions }: Props) {
               const budget = data.oneoffBudgets[cat] ?? 0;
               const spend  = oneoffSpend[cat] ?? 0;
               return (
-                <tr key={cat} className={`border-b border-gray-100 ${i % 2 === 0 ? '' : 'bg-gray-50/50'}`}>
-                  <td className="px-3 py-1.5 text-sm text-gray-700">{cat}</td>
+                <tr key={cat} className={`border-b border-gray-100 dark:border-slate-700 ${i % 2 === 0 ? '' : 'bg-gray-50/50 dark:bg-slate-800/50'}`}>
+                  <td className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200">{cat}</td>
                   <EditCell value={budget} onChange={v => update({ ...data, oneoffBudgets: { ...data.oneoffBudgets, [cat]: v } })} />
                   <SpendCell value={spend} />
                   <BalanceCell value={r2(budget - spend)} />
@@ -304,20 +304,20 @@ export default function Summary({ transactions }: Props) {
               );
             })}
             {oneoffRows.length === 0 && (
-              <tr><td colSpan={4} className="px-3 py-4 text-center text-sm text-gray-400">No one-off budgeted transactions yet</td></tr>
+              <tr><td colSpan={4} className="px-3 py-4 text-center text-sm text-gray-400 dark:text-slate-500">No one-off budgeted transactions yet</td></tr>
             )}
           </tbody>
-          <tfoot className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
+          <tfoot className="border-t-2 border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 font-semibold">
             <tr>
-              <td className="px-3 py-2 text-sm">Total One-off</td>
-              <td className="px-3 py-2 text-right text-sm tabular-nums">{fmt(totalOneoffBudget)}</td>
-              <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-700">{fmt(totalOneoffSpend)}</td>
+              <td className="px-3 py-2 text-sm dark:text-slate-100">Total One-off</td>
+              <td className="px-3 py-2 text-right text-sm tabular-nums dark:text-slate-100">{fmt(totalOneoffBudget)}</td>
+              <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-700 dark:text-slate-200">{fmt(totalOneoffSpend)}</td>
               <BalanceCell value={r2(totalOneoffBudget - totalOneoffSpend)} />
             </tr>
-            <tr className="border-t border-gray-200">
-              <td className="px-3 py-2 text-sm">Total Expected Cost</td>
-              <td className="px-3 py-2 text-right text-sm tabular-nums">{fmt(totalBudget)}</td>
-              <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-700">{fmt(totalSpend)}</td>
+            <tr className="border-t border-gray-200 dark:border-slate-700">
+              <td className="px-3 py-2 text-sm dark:text-slate-100">Total Expected Cost</td>
+              <td className="px-3 py-2 text-right text-sm tabular-nums dark:text-slate-100">{fmt(totalBudget)}</td>
+              <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-700 dark:text-slate-200">{fmt(totalSpend)}</td>
               <BalanceCell value={r2(totalBudget - totalSpend)} />
             </tr>
           </tfoot>
@@ -325,7 +325,7 @@ export default function Summary({ transactions }: Props) {
       </div>
 
       {/* ── SALARY & BUDGET GAP ──────────────────────────────────── */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden mb-4">
         <div className="bg-slate-700 text-white px-4 py-2 text-sm font-semibold">Salary vs Budget</div>
         <table className="w-full">
           <tbody>
@@ -349,17 +349,17 @@ export default function Summary({ transactions }: Props) {
       </div>
 
       {/* ── MONTHLY OVERVIEW ─────────────────────────────────────── */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
         <div className="bg-slate-700 text-white px-4 py-2 text-sm font-semibold">Monthly Overview</div>
         <table className="w-full">
           <tbody>
             <CalcRow label="Money available" value={r2(data.salary + data.fromPrevious)} />
             {/* Money in so far rows */}
             {data.moneyInRows.map((row, i) => (
-              <tr key={i} className="border-b border-gray-100">
+              <tr key={i} className="border-b border-gray-100 dark:border-slate-700">
                 <td className="px-3 py-1.5 w-full">
                   <input
-                    className="text-sm text-gray-700 bg-transparent border-none w-full focus:outline-none focus:bg-blue-50 rounded"
+                    className="text-sm text-gray-700 dark:text-slate-200 bg-transparent border-none w-full focus:outline-none focus:bg-blue-50 dark:focus:bg-slate-700 rounded"
                     placeholder="--empty--"
                     value={row.label}
                     onChange={e => {
@@ -392,8 +392,8 @@ export default function Summary({ transactions }: Props) {
 
 function SummaryRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <tr className="border-b border-gray-100">
-      <td className="px-3 py-1.5 text-sm text-gray-700 w-full">{label}</td>
+    <tr className="border-b border-gray-100 dark:border-slate-700">
+      <td className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200 w-full">{label}</td>
       {children}
     </tr>
   );
@@ -402,10 +402,10 @@ function SummaryRow({ label, children }: { label: string; children: React.ReactN
 function CalcRow({ label, value, bold, colored }: { label: string; value: number; bold?: boolean; colored?: boolean }) {
   const textClass = colored
     ? value >= 0 ? 'text-green-700' : 'text-red-600'
-    : 'text-gray-700';
+    : 'text-gray-700 dark:text-slate-200';
   return (
-    <tr className="border-b border-gray-100">
-      <td className={`px-3 py-1.5 text-sm w-full ${bold ? 'font-semibold' : ''}`}>{label}</td>
+    <tr className="border-b border-gray-100 dark:border-slate-700">
+      <td className={`px-3 py-1.5 text-sm w-full dark:text-slate-200 ${bold ? 'font-semibold' : ''}`}>{label}</td>
       <td className={`px-3 py-1.5 text-right text-sm tabular-nums ${bold ? 'font-semibold' : ''} ${textClass}`}>
         {value.toFixed(2)}
       </td>
@@ -414,5 +414,5 @@ function CalcRow({ label, value, bold, colored }: { label: string; value: number
 }
 
 function DividerRow() {
-  return <tr className="border-t-2 border-gray-300"><td colSpan={2} className="py-0"></td></tr>;
+  return <tr className="border-t-2 border-gray-300 dark:border-slate-600"><td colSpan={2} className="py-0"></td></tr>;
 }

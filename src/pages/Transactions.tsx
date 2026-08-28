@@ -418,18 +418,18 @@ export default function Transactions({ transactions, settings, onChange, typeFil
   return (
     <div className="flex flex-col h-full">
       {/* Filters & Actions — pinned, does not scroll */}
-      <div className="flex items-center gap-3 flex-wrap flex-shrink-0 px-4 pt-4 pb-3 bg-white border-b border-gray-200">
+      <div className="flex items-center gap-3 flex-wrap flex-shrink-0 px-4 pt-4 pb-3 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
         <select
           value={year}
           onChange={e => setYear(Number(e.target.value))}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white"
+          className="border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100"
         >
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select
           value={month}
           onChange={e => setMonth(Number(e.target.value))}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white"
+          className="border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100"
         >
           {MONTHS.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
         </select>
@@ -447,7 +447,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
         </button>
         <input ref={fileRef} type="file" accept=".xls,.xlsx" className="hidden" onChange={handleImport} />
         {importStatus && (
-          <span className="text-sm text-gray-500">{importStatus}</span>
+          <span className="text-sm text-gray-500 dark:text-slate-400">{importStatus}</span>
         )}
         {hasActiveFilters && (
           <button
@@ -457,7 +457,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
             Clear filters
           </button>
         )}
-        <span className="text-sm text-gray-500 ml-auto">
+        <span className="text-sm text-gray-500 dark:text-slate-400 ml-auto">
           {hasActiveFilters
             ? `${displayRows.length} of ${monthFiltered.length} transactions`
             : `${monthFiltered.length} transactions`}
@@ -469,10 +469,10 @@ export default function Transactions({ transactions, settings, onChange, typeFil
       </div>
 
       {/* Table — scrollable area */}
-      <div className="flex-1 overflow-auto mx-4 my-3 rounded-lg border border-gray-200 bg-white">
+      <div className="flex-1 overflow-auto mx-4 my-3 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
         <table className="text-sm border-collapse min-w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200 select-none">
+            <tr className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 select-none">
               {COLUMNS.map(([key, label]) => {
                 const filterable = FILTERABLE.has(key);
                 const hasFilter = !!(columnFilters[key] && columnFilters[key].length > 0);
@@ -480,7 +480,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                   <th
                     key={key}
                     style={{ width: colWidths[key], minWidth: colWidths[key] }}
-                    className="relative px-2 py-2 text-left text-xs font-semibold text-gray-600 border-r border-gray-200 overflow-hidden sticky top-0 bg-gray-50 z-10"
+                    className="relative px-2 py-2 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 border-r border-gray-200 dark:border-slate-700 overflow-hidden sticky top-0 bg-gray-50 dark:bg-slate-900 z-10"
                   >
                     <div className="flex items-center gap-0.5 pr-2">
                       <span className="truncate flex-1">{label}</span>
@@ -490,7 +490,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                           className={`flex-shrink-0 text-xs leading-none px-0.5 py-0.5 rounded transition-colors ${
                             hasFilter
                               ? 'text-blue-600 bg-blue-100 hover:bg-blue-200'
-                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
+                              : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
                           }`}
                           title={`Filter by ${label}`}
                         >
@@ -505,13 +505,13 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                   </th>
                 );
               })}
-              <th className="w-8 bg-gray-50 sticky top-0 right-0 z-20 border-l border-gray-200"></th>
+              <th className="w-8 bg-gray-50 dark:bg-slate-900 sticky top-0 right-0 z-20 border-l border-gray-200 dark:border-slate-700"></th>
             </tr>
           </thead>
           <tbody>
             {displayRows.length === 0 && (
               <tr>
-                <td colSpan={12} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={12} className="px-4 py-8 text-center text-gray-400 dark:text-slate-500">
                   {hasActiveFilters
                     ? 'No transactions match the active filters.'
                     : `No transactions for ${MONTHS[month - 1]} ${year}. Add a row or upload a bank file.`}
@@ -521,8 +521,8 @@ export default function Transactions({ transactions, settings, onChange, typeFil
             {displayRows.map((t, rowIdx) => (
               <tr
                 key={t.id}
-                className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${
-                  rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                className={`border-b border-gray-100 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors ${
+                  rowIdx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-gray-50/50 dark:bg-slate-800/50'
                 }`}
               >
                 {/* Date */}
@@ -541,8 +541,8 @@ export default function Transactions({ transactions, settings, onChange, typeFil
 
                 {/* End Balance — always calculated */}
                 <td style={{ width: colWidths.endBalance, minWidth: colWidths.endBalance }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
-                  <span className={`block text-right px-1 py-0.5 text-xs bg-gray-50 rounded ${
-                    t.endBalance !== null && t.endBalance < 0 ? 'text-red-500' : 'text-gray-500'
+                  <span className={`block text-right px-1 py-0.5 text-xs bg-gray-50 dark:bg-slate-900 rounded ${
+                    t.endBalance !== null && t.endBalance < 0 ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-slate-400'
                   }`}>
                     {fmt(t.endBalance)}
                   </span>
@@ -552,8 +552,8 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 <td style={{ width: colWidths.amount, minWidth: colWidths.amount }} className="px-1 py-0.5 border-r border-gray-100 overflow-hidden">
                   <NumericInput
                     className={`table-cell-input text-right ${
-                      t.amount !== null && t.amount < 0 ? 'text-red-600' :
-                      t.amount !== null && t.amount > 0 ? 'text-green-700' : ''
+                      t.amount !== null && t.amount < 0 ? 'text-red-600 dark:text-red-400' :
+                      t.amount !== null && t.amount > 0 ? 'text-green-700 dark:text-green-400' : ''
                     }`}
                     value={t.amount}
                     onChange={v => updateField(t.id, 'amount', v)}
@@ -633,7 +633,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 </td>
 
                 {/* Delete — sticky right so always visible when scrolling */}
-                <td className={`sticky right-0 px-1 py-0.5 border-l border-gray-200 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                <td className={`sticky right-0 px-1 py-0.5 border-l border-gray-200 dark:border-slate-700 ${rowIdx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-gray-50 dark:bg-slate-900'}`}>
                   <button onClick={() => deleteRow(t.id)}
                     className="text-red-400 hover:text-red-600 text-base px-1 font-bold transition-colors" title="Delete row">
                     ✕
@@ -651,20 +651,20 @@ export default function Transactions({ transactions, settings, onChange, typeFil
         <div
           ref={filterPanelRef}
           style={{ position: 'fixed', top: filterAnchor.top, left: filterAnchor.left, zIndex: 1000 }}
-          className="bg-white border border-gray-300 rounded-lg shadow-xl w-56"
+          className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg shadow-xl w-56"
         >
           {/* Search */}
-          <div className="p-2 border-b border-gray-200">
+          <div className="p-2 border-b border-gray-200 dark:border-slate-700">
             <input
               autoFocus
-              className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+              className="w-full border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
               placeholder="Search…"
               value={filterSearch}
               onChange={e => setFilterSearch(e.target.value)}
             />
           </div>
           {/* Select All */}
-          <div className="px-2 py-1.5 border-b border-gray-200">
+          <div className="px-2 py-1.5 border-b border-gray-200 dark:border-slate-700">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -673,31 +673,31 @@ export default function Transactions({ transactions, settings, onChange, typeFil
                 onChange={() => toggleSelectAll(activeFilterCol)}
                 className="cursor-pointer"
               />
-              <span className="text-xs font-medium text-gray-700">(Select All)</span>
-              <span className="ml-auto text-xs text-gray-400">{activeAllVals.length}</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-slate-200">(Select All)</span>
+              <span className="ml-auto text-xs text-gray-400 dark:text-slate-500">{activeAllVals.length}</span>
             </label>
           </div>
           {/* Value list */}
           <div className="max-h-52 overflow-y-auto">
             {activeDisplayVals.map(val => (
-              <label key={val} className="flex items-center gap-2 px-2 py-0.5 hover:bg-gray-50 cursor-pointer select-none">
+              <label key={val} className="flex items-center gap-2 px-2 py-0.5 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={isValueChecked(activeFilterCol, val)}
                   onChange={() => toggleValue(activeFilterCol, val)}
                   className="cursor-pointer flex-shrink-0"
                 />
-                <span className="text-xs text-gray-700 truncate" title={val}>
-                  {val === '' ? <span className="text-gray-400 italic">(blank)</span> : val}
+                <span className="text-xs text-gray-700 dark:text-slate-200 truncate" title={val}>
+                  {val === '' ? <span className="text-gray-400 dark:text-slate-500 italic">(blank)</span> : val}
                 </span>
               </label>
             ))}
             {activeDisplayVals.length === 0 && (
-              <div className="px-2 py-3 text-xs text-gray-400 text-center">No matches</div>
+              <div className="px-2 py-3 text-xs text-gray-400 dark:text-slate-500 text-center">No matches</div>
             )}
           </div>
           {/* Footer */}
-          <div className="px-2 py-1.5 border-t border-gray-200 flex justify-between items-center">
+          <div className="px-2 py-1.5 border-t border-gray-200 dark:border-slate-700 flex justify-between items-center">
             <button
               onClick={() => { clearFilter(activeFilterCol); setOpenFilter(null); }}
               className="text-xs text-blue-600 hover:underline"

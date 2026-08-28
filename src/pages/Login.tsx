@@ -15,10 +15,10 @@ interface Props {
 
 export default function Login({ onLogin }: Props) {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-sm text-center">
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">Finance Tracker</h1>
-        <p className="text-gray-400 text-sm mb-8">Sign in to continue</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-10 w-full max-w-sm text-center">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-1">Budget Tracker</h1>
+        <p className="text-gray-400 dark:text-slate-500 text-sm mb-8">Sign in to continue</p>
 
         <div className="flex justify-center">
           <GoogleLogin
@@ -36,7 +36,7 @@ export default function Login({ onLogin }: Props) {
           />
         </div>
 
-        <p className="text-xs text-gray-300 mt-6">Restricted access</p>
+        <p className="text-xs text-gray-300 dark:text-slate-600 mt-6">Restricted access</p>
       </div>
     </div>
   );

@@ -9,12 +9,12 @@ interface Props {
 export default function Nav({ user, onLogout }: Props) {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-      isActive ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+      isActive ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'
     }`;
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-2">
-      <span className="font-bold text-gray-800 mr-4">Budget Tracker</span>
+    <nav className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-3 flex items-center gap-2">
+      <span className="font-bold text-gray-800 dark:text-slate-100 mr-4">Budget Tracker</span>
       <NavLink to="/" end className={linkClass}>Day-to-Day Costs</NavLink>
       <NavLink to="/recurring" className={linkClass}>Recurring Costs</NavLink>
       <NavLink to="/summary" className={linkClass}>Summary</NavLink>
@@ -25,10 +25,10 @@ export default function Nav({ user, onLogout }: Props) {
         {user.picture && (
           <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full" />
         )}
-        <span className="text-sm text-gray-600">{user.name}</span>
+        <span className="text-sm text-gray-600 dark:text-slate-300">{user.name}</span>
         <button
           onClick={onLogout}
-          className="text-sm text-gray-400 hover:text-red-500 transition-colors"
+          className="text-sm text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors"
         >
           Sign out
         </button>

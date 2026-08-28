@@ -61,39 +61,39 @@ function buildFlatRows(
 }
 
 function WriteOffTable({ transactions }: { transactions: Transaction[] }) {
-  const amtClass = (v: number) => v < 0 ? 'text-red-600' : 'text-green-700';
+  const amtClass = (v: number) => v < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400';
   const total = transactions.reduce((s, t) => s + (t.amount ?? 0), 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
       <div className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold">Write-off</div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
             <tr>
               {['Category', 'Sub Category', 'Paid To'].map(h => (
-                <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
               ))}
-              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Amount</th>
             </tr>
           </thead>
           <tbody>
             {transactions.length === 0 && (
-              <tr><td colSpan={4} className="px-3 py-6 text-center text-gray-400">No data</td></tr>
+              <tr><td colSpan={4} className="px-3 py-6 text-center text-gray-400 dark:text-slate-500">No data</td></tr>
             )}
             {transactions.map(t => (
-              <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="px-3 py-1.5 text-sm text-gray-700">{t.category}</td>
-                <td className="px-3 py-1.5 text-sm text-gray-700">{t.subCategory}</td>
-                <td className="px-3 py-1.5 text-sm text-gray-700">{t.paidTo}</td>
+              <tr key={t.id} className="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700">
+                <td className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200">{t.category}</td>
+                <td className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200">{t.subCategory}</td>
+                <td className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200">{t.paidTo}</td>
                 <td className={`px-3 py-1.5 text-right text-sm tabular-nums ${amtClass(t.amount ?? 0)}`}>
                   €{(t.amount ?? 0).toFixed(2)}
                 </td>
               </tr>
             ))}
             {transactions.length > 0 && (
-              <tr className="border-t-2 border-gray-300 bg-gray-50 font-bold">
-                <td colSpan={3} className="px-3 py-2 text-sm">Total</td>
+              <tr className="border-t-2 border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 font-bold">
+                <td colSpan={3} className="px-3 py-2 text-sm dark:text-slate-100">Total</td>
                 <td className={`px-3 py-2 text-right text-sm ${amtClass(total)}`}>€{total.toFixed(2)}</td>
               </tr>
             )}
@@ -113,34 +113,34 @@ function FlatTable({
   headers: string[];
   rows: FlatRow[];
 }) {
-  const amtClass = (v: number) => v < 0 ? 'text-red-600' : 'text-green-700';
+  const amtClass = (v: number) => v < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400';
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
       <div className="bg-blue-600 text-white px-4 py-2 text-sm font-semibold">{title}</div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
             <tr>
               {headers.map(h => (
-                <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
                   {h}
                 </th>
               ))}
-              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Amount
               </th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={headers.length + 1} className="px-3 py-6 text-center text-gray-400">No data</td></tr>
+              <tr><td colSpan={headers.length + 1} className="px-3 py-6 text-center text-gray-400 dark:text-slate-500">No data</td></tr>
             )}
             {rows.map((row, i) => {
               if (row.isTotal) {
                 return (
-                  <tr key={i} className="border-t-2 border-gray-300 bg-gray-50 font-bold">
-                    <td colSpan={headers.length} className="px-3 py-2 text-sm">Grand Total</td>
+                  <tr key={i} className="border-t-2 border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 font-bold">
+                    <td colSpan={headers.length} className="px-3 py-2 text-sm dark:text-slate-100">Grand Total</td>
                     <td className={`px-3 py-2 text-right text-sm ${amtClass(row.amount)}`}>
                       €{row.amount.toFixed(2)}
                     </td>
@@ -160,9 +160,9 @@ function FlatTable({
                 );
               }
               return (
-                <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={i} className="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700">
                   {row.cols.map((c, j) => (
-                    <td key={j} className="px-3 py-1.5 text-sm text-gray-700">{c}</td>
+                    <td key={j} className="px-3 py-1.5 text-sm text-gray-700 dark:text-slate-200">{c}</td>
                   ))}
                   <td className={`px-3 py-1.5 text-right text-sm tabular-nums ${amtClass(row.amount)}`}>
                     €{row.amount.toFixed(2)}
@@ -205,14 +205,14 @@ export default function Analytics({ transactions }: Props) {
     <div className="p-4">
       <div className="flex items-center gap-3 mb-5">
         <select value={year} onChange={e => setYear(Number(e.target.value))}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white">
+          className="border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100">
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select value={month} onChange={e => setMonth(Number(e.target.value))}
-          className="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white">
+          className="border border-gray-300 dark:border-slate-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-slate-700 dark:text-slate-100">
           {MONTHS.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
         </select>
-        <span className="text-sm text-gray-500">{filtered.length} transactions · {MONTHS[month - 1]} {year}</span>
+        <span className="text-sm text-gray-500 dark:text-slate-400">{filtered.length} transactions · {MONTHS[month - 1]} {year}</span>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">

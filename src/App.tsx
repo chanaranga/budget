@@ -79,12 +79,12 @@ export default function App() {
       {!user ? (
         <Login onLogin={handleLogin} />
       ) : loading ? (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center text-gray-400 dark:text-slate-500">
           Loading…
         </div>
       ) : (
         <BrowserRouter>
-          <div className="h-screen flex flex-col bg-gray-50">
+          <div className="h-screen flex flex-col bg-gray-50 dark:bg-slate-900">
             <Nav user={user} onLogout={handleLogout} />
             <div className="flex-1 overflow-y-auto">
             <Routes>
