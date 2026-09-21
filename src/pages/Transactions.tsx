@@ -358,12 +358,21 @@ export default function Transactions({ transactions, settings, onChange, typeFil
       });
     }
 
+    function extractRevolutPaidTo(desc: string): string {
+      const fromMatch = desc.match(/^(?:Payment|Transfer) from (.+)$/i);
+      if (fromMatch) return fromMatch[1];
+      const toMatch = desc.match(/^To (.+?)(?:\s+via\s+.+)?$/i);
+      if (toMatch) return toMatch[1];
+      return desc;
+    }
+
     function processRows(rows: Record<string, unknown>[]) {
       if (rows.length === 0) { setImportStatus('No rows found in file.'); return; }
       const cols = Object.keys(rows[0]);
       const isBunq = cols.includes('Date') && cols.includes('Amount') && cols.includes('Name') && cols.includes('Description');
+      const isRevolut = cols.includes('Type') && cols.includes('Started Date') && cols.includes('Completed Date') && cols.includes('Balance');
       const isExisting = cols.includes('transactiondate') && cols.includes('amount') && cols.includes('description');
-      if (!isBunq && !isExisting) {
+      if (!isBunq && !isRevolut && !isExisting) {
         setImportStatus(`Unrecognised file format. Columns found: ${cols.join(', ')}`);
         return;
       }
@@ -382,6 +391,28 @@ export default function Transactions({ transactions, settings, onChange, typeFil
             paidTo: String(row['Name'] ?? ''),
             comment: '',
             bankText: String(row['Description'] ?? ''),
+            budgeted: '',
+            excludeFromAnalytics: false,
+          };
+        } else if (isRevolut) {
+          const desc = String(row['Description'] ?? '');
+          const endBalRaw = parseFloat(String(row['Balance'] ?? ''));
+          const endBal = isNaN(endBalRaw) ? null : endBalRaw;
+          const amtRaw = parseFloat(String(row['Amount'] ?? ''));
+          const amt = isNaN(amtRaw) ? null : amtRaw;
+          const startBal = endBal !== null && amt !== null ? Math.round((endBal - amt) * 100) / 100 : null;
+          return {
+            id: generateId(),
+            date: String(row['Started Date'] ?? '').slice(0, 10),
+            startBalance: startBal,
+            endBalance: endBal,
+            amount: amt,
+            type: typeFilter?.[0] ?? 'One off',
+            category: '',
+            subCategory: '',
+            paidTo: extractRevolutPaidTo(desc),
+            comment: '',
+            bankText: desc,
             budgeted: '',
             excludeFromAnalytics: false,
           };
@@ -414,7 +445,7 @@ export default function Transactions({ transactions, settings, onChange, typeFil
 
       const merged = recalcAllMonths([...transactions, ...newRows]);
       onChange(merged);
-      const fmt = isBunq ? 'Bunq CSV' : 'bank export';
+      const fmt = isBunq ? 'Bunq CSV' : isRevolut ? 'Revolut CSV' : 'bank export';
       setImportStatus(`Imported ${newRows.length} new row${newRows.length === 1 ? '' : 's'} from ${fmt}.`);
     }
 

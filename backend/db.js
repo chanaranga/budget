@@ -9,13 +9,6 @@ const db = new DatabaseSync(DB_PATH);
 
 db.exec(`PRAGMA journal_mode = WAL`);
 
-// Add columns introduced after initial schema
-try { db.exec(`ALTER TABLE transactions ADD COLUMN exclude_from_analytics INTEGER DEFAULT 0`); } catch (_) { /* already exists */ }
-try { db.exec(`ALTER TABLE transactions ADD COLUMN bunq_id TEXT`); } catch (_) {}
-try { db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_bunq_id ON transactions(bunq_id) WHERE bunq_id IS NOT NULL`); } catch (_) {}
-try { db.exec(`CREATE TABLE IF NOT EXISTS bunq_settings (key TEXT PRIMARY KEY, value TEXT)`); } catch (_) {}
-db.exec(`PRAGMA foreign_keys = ON`);
-
 db.exec(`
   CREATE TABLE IF NOT EXISTS transactions (
     id            TEXT PRIMARY KEY,
@@ -43,5 +36,12 @@ db.exec(`
     data  TEXT NOT NULL
   );
 `);
+
+// Add columns introduced after initial schema
+try { db.exec(`ALTER TABLE transactions ADD COLUMN exclude_from_analytics INTEGER DEFAULT 0`); } catch (_) { /* already exists */ }
+try { db.exec(`ALTER TABLE transactions ADD COLUMN bunq_id TEXT`); } catch (_) {}
+try { db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_bunq_id ON transactions(bunq_id) WHERE bunq_id IS NOT NULL`); } catch (_) {}
+try { db.exec(`CREATE TABLE IF NOT EXISTS bunq_settings (key TEXT PRIMARY KEY, value TEXT)`); } catch (_) {}
+db.exec(`PRAGMA foreign_keys = ON`);
 
 module.exports = db;
